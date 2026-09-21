@@ -1,6 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app import seed
+from app.db import connect
 from app.routers import api
 
 app = FastAPI(title="Taximeter", version="0.2.0")
@@ -12,4 +13,10 @@ def _startup(): seed.init_db()
 app.include_router(api)
 
 @app.get("/api/health")
-def health(): return {"ok": True, "project": "taximeter"}
+def health():
+    conn = connect()  # 默认库
+    try:
+        conn.execute("SELECT 1")
+    finally:
+        conn.close()
+    return {"ok": True, "project": "taximeter"}
